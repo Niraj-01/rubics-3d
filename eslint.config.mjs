@@ -5,6 +5,12 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // three.js scene objects are imperative by design: materials, uniforms and meshes are
+  // created once in useMemo and mutated every frame in useFrame.
+  {
+    files: ["src/scene/**"],
+    rules: { "react-hooks/immutability": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
