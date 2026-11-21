@@ -61,13 +61,13 @@ export default function FloorPicker() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="btn btn-ghost glass fixed bottom-[max(16px,env(safe-area-inset-bottom))] right-4 z-30 !rounded-full !border-gold/30 transition-all duration-500 sm:bottom-8 sm:right-8"
+        className="btn btn-ghost glass fixed bottom-[max(16px,env(safe-area-inset-bottom))] right-4 z-30 !rounded-full !border-gold/30 transition-all duration-500 max-sm:h-[54px] max-sm:w-[68px] max-sm:flex-col max-sm:gap-1 max-sm:px-0 max-sm:text-[9px] max-sm:tracking-[0.18em] sm:bottom-8 sm:right-8"
         style={{ opacity: visible || mode === 'pool' ? 0 : 1, pointerEvents: visible || mode === 'pool' ? 'none' : 'auto' }}
         aria-haspopup="dialog"
       >
         <LayersIcon className="h-[18px] w-[18px] text-gold-light" />
         <span className="hidden sm:inline">Choose your floor</span>
-        <span className="sm:hidden">Floors</span>
+        <span className="leading-none sm:hidden">Floors</span>
       </button>
 
       <div
