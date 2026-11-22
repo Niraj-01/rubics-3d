@@ -1,13 +1,11 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { AdaptiveDpr, Environment, Lightformer, PerformanceMonitor, useProgress } from '@react-three/drei';
-import { Bloom, EffectComposer, ToneMapping } from '@react-three/postprocessing';
-import { ToneMappingMode } from 'postprocessing';
 import * as THREE from 'three';
 import { useStore } from '@/store';
-import { applyFog, applyWeather, syncWeather, U, W } from './weather';
+import { applyFog, applyRain, applyTime, syncWeather, U, W } from './weather';
 import Sky from './Sky';
 import Tower from './Tower';
 import AmenityDeck from './AmenityDeck';
@@ -17,6 +15,10 @@ import Clouds from './Clouds';
 import SeaLink from './SeaLink';
 import Rain from './Rain';
 import CameraRig from './CameraRig';
+import FloorInterior from './FloorInterior';
+import TowerPicker from './TowerPicker';
+
+const Effects = lazy(() => import('./Effects'));
 
 function detectLowTier() {
   const nav = navigator as Navigator & { deviceMemory?: number };
@@ -31,11 +33,13 @@ function WeatherDriver() {
   const hemi = useRef<THREE.HemisphereLight>(null);
 
   useEffect(() => {
-    const { weather, fog } = useStore.getState();
-    applyWeather(weather, true);
+    const { time, weather, fog } = useStore.getState();
+    applyTime(time, true);
+    applyRain(weather === 'monsoon', true);
     applyFog(fog, true);
     return useStore.subscribe((cur, prev) => {
-      if (cur.weather !== prev.weather) applyWeather(cur.weather);
+      if (cur.time !== prev.time) applyTime(cur.time);
+      if (cur.weather !== prev.weather) applyRain(cur.weather === 'monsoon');
       if (cur.fog !== prev.fog) applyFog(cur.fog);
     });
   }, []);
@@ -93,7 +97,7 @@ export default function Experience() {
       dpr={high ? [1, 1.5] : [1, 1.25]}
       gl={{ antialias: !high, powerPreference: 'high-performance', stencil: false }}
       camera={{ fov: 42, near: 1, far: 16000, position: [190, 196, 285] }}
-      style={{ position: 'fixed', inset: 0 }}
+      style={{ position: 'fixed', inset: 0, touchAction: 'none' }}
     >
       <PerformanceMonitor onDecline={() => setTier('low')} flipflops={2} />
       <AdaptiveDpr pixelated={false} />
@@ -111,14 +115,15 @@ export default function Experience() {
       <SeaLink />
       <Tower />
       <AmenityDeck />
+      <FloorInterior />
+      <TowerPicker />
       <Clouds />
       <Rain />
       <CameraRig />
       {high && (
-        <EffectComposer multisampling={4} enableNormalPass={false}>
-          <Bloom mipmapBlur intensity={0.75} luminanceThreshold={0.92} luminanceSmoothing={0.25} radius={0.72} />
-          <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-        </EffectComposer>
+        <Suspense fallback={null}>
+          <Effects />
+        </Suspense>
       )}
     </Canvas>
   );

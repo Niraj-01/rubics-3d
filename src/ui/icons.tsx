@@ -6,6 +6,17 @@ export const SunriseIcon = ({ className }: P) => (
     <path d="M3 17h18M7 17a5 5 0 0 1 10 0M12 4v3M4.9 9.9l1.4 1.4M19.1 9.9l-1.4 1.4M2 21h20" />
   </svg>
 );
+export const SunsetIcon = ({ className }: P) => (
+  <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden>
+    <path d="M3 17h18M7 17a5 5 0 0 1 10 0M12 9V4M9.5 6.5 12 9l2.5-2.5M2 21h20" />
+  </svg>
+);
+export const SoundIcon = ({ className, on }: P & { on: boolean }) => (
+  <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden>
+    <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />
+    {on ? <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" /> : <path d="m16 10 4 4M20 10l-4 4" />}
+  </svg>
+);
 export const SunIcon = ({ className }: P) => (
   <svg viewBox="0 0 24 24" className={className} {...base} aria-hidden>
     <circle cx="12" cy="12" r="4" />

@@ -38,6 +38,27 @@ body {
   overflow-x: hidden;
 }
 
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.2s !important;
+  }
+}
+
 ::selection {
   background: rgba(201, 169, 110, 0.35);
 }
@@ -203,6 +224,67 @@ input[type="range"].gold-range::-moz-range-thumb {
   background: #e6d3a3;
 }
 
+/* Floor label that follows the cursor over the tower */
+.tower-tip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 14px;
+  border-radius: 12px !important;
+  font-size: 12px;
+  color: var(--color-cream);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  will-change: transform;
+}
+
+/* Time-of-day slider: the track is the day itself, dawn to night. */
+input[type="range"].time-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 44px;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-x;
+}
+input[type="range"].time-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f2b48a 0%, #bcd5ea 33%, #f08a5d 66%, #1d2a4a 100%);
+  opacity: 0.85;
+}
+input[type="range"].time-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: #e6d3a3;
+  border: 2px solid #0b0b0c;
+  box-shadow: 0 0 0 1px rgba(230, 211, 163, 0.6), 0 2px 10px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+input[type="range"].time-range:active::-webkit-slider-thumb {
+  transform: scale(1.18);
+}
+input[type="range"].time-range::-moz-range-track {
+  height: 4px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f2b48a 0%, #bcd5ea 33%, #f08a5d 66%, #1d2a4a 100%);
+}
+input[type="range"].time-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e6d3a3;
+  border: 2px solid #0b0b0c;
+}
+
 .safe-bottom {
   padding-bottom: max(16px, env(safe-area-inset-bottom));
 }
@@ -242,5 +324,23 @@ input[type="range"].gold-range::-moz-range-thumb {
     opacity: 1;
     transform: none;
     filter: none;
+  }
+}
+
+@keyframes reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(260%) skewX(-18deg);
   }
 }

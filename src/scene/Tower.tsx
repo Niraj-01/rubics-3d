@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { LIGHT_GLSL, NOISE_GLSL, OUTPUT_GLSL, STANDARD_VERT, UNIFORMS_GLSL } from './glsl';
 import { U } from './weather';
+import { useStore } from '@/store';
 import { chamferedRect, CROWN_H, DECK_Y, FLOOR_H, PODIUM, ROOF_Y, TOWER } from './towerSpec';
 
 /** Extrude an XZ outline upward from y0 to y1. */
@@ -96,6 +97,10 @@ void main() {
     stone = mix(stone, stone * 0.82, joint * 0.6);
     col = shade(stone, n);
     col = mix(col, col * 0.6 + uSkyTop * 0.25, uWet * 0.6);
+    // contact shadow where the tower meets the deck, so it sits on the podium rather than floating
+    vec2 q = abs(vWPos.xz - vec2(${TOWER.cx.toFixed(1)}, ${TOWER.cz.toFixed(1)})) - vec2(${(TOWER.w / 2).toFixed(1)}, ${(TOWER.d / 2).toFixed(1)});
+    float dT = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
+    col *= mix(0.5, 1.0, smoothstep(0.0, 9.0, dT));
   } else {
     vec2 t2 = vec2(-n.z, n.x);
     float u = dot(vWPos.xz, t2);
@@ -122,6 +127,8 @@ void main() {
   ${OUTPUT_GLSL}
 }
 `;
+
+const GLINT = { value: 0 };
 
 function facadeMaterial(kind: 'GLASS' | 'PODIUM', baseY: number) {
   return new THREE.ShaderMaterial({
@@ -169,6 +176,22 @@ export default function Tower() {
     const finGeo = new THREE.BoxGeometry(1, 1, 1);
     finGeo.translate(0, 0.5, 0);
     const finMat = new THREE.MeshStandardMaterial({ color: '#b08a55', metalness: 0.85, roughness: 0.3 });
+    // a slow glint of light travelling up the gold fins
+    finMat.onBeforeCompile = (sh) => {
+      sh.uniforms.uTime = U.uTime;
+      sh.uniforms.uGlint = GLINT;
+      sh.vertexShader = sh.vertexShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vGlintPos;')
+        .replace('#include <project_vertex>', '#include <project_vertex>\nvGlintPos = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;');
+      sh.fragmentShader = sh.fragmentShader
+        .replace('#include <common>', '#include <common>\nuniform float uTime;\nuniform float uGlint;\nvarying vec3 vGlintPos;')
+        .replace(
+          '#include <emissivemap_fragment>',
+          `#include <emissivemap_fragment>
+          float sweep = sin(vGlintPos.y * 0.03 - uTime * 0.45);
+          totalEmissiveRadiance += vec3(1.0, 0.82, 0.55) * pow(max(sweep, 0.0), 160.0) * uGlint * 0.55;`,
+        );
+    };
     const fins = new THREE.InstancedMesh(finGeo, finMat, pts.length);
     const m = new THREE.Matrix4();
     const q = new THREE.Quaternion();
@@ -196,8 +219,14 @@ export default function Tower() {
     };
   }, []);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, delta) => {
     const glow = U.uWindowGlow.value;
+    // fins right outside the glass would blow out in the floor view; calm them there
+    const inside = useStore.getState().mode === 'floor';
+    const fm = fins.material as THREE.MeshStandardMaterial;
+    fm.envMapIntensity = THREE.MathUtils.damp(fm.envMapIntensity, inside ? 0.25 : 1, 3, delta);
+    const daylight = Math.min(1, U.uSunIntensity.value / 2.6) * (1 - glow * 0.6);
+    GLINT.value = THREE.MathUtils.damp(GLINT.value, inside ? 0 : daylight, 3, delta);
     if (aviation.current) {
       const blink = Math.sin(clock.elapsedTime * 2.2) > 0.6 ? 1 : 0.15;
       aviation.current.color.setRGB(3 * blink, 0.15 * blink, 0.1 * blink);

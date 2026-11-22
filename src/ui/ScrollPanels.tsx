@@ -6,6 +6,8 @@ import { PANEL_HALF_WIDTH, PANEL_RANGES, type PanelId } from '@/scene/cameraPath
 import { useStore } from '@/store';
 import { rangeVisibility, useScrollStyle } from './useScrollStyle';
 
+const STAGGER = 0.14;
+
 function Panel({ id, children }: { id: PanelId; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
   const center = PANEL_RANGES.find((r) => r.id === id)!.center;
@@ -13,11 +15,25 @@ function Panel({ id, children }: { id: PanelId; children: ReactNode }) {
     (el: HTMLElement, p: number) => {
       const v = rangeVisibility(p, center, PANEL_HALF_WIDTH);
       const dir = p < center ? 1 : -1;
-      el.style.opacity = v.toFixed(3);
-      el.style.transform = `translate3d(0, ${((1 - v) * 16 * dir).toFixed(2)}px, 0)`;
-      el.style.filter = v > 0.995 ? 'none' : `blur(${((1 - v) * 6).toFixed(2)}px)`;
+      // the glass arrives a beat ahead of its contents
+      const glass = Math.min(1, v * 1.6);
+      el.style.opacity = glass.toFixed(3);
+      el.style.transform = `translate3d(0, ${((1 - glass) * 16 * dir).toFixed(2)}px, 0)`;
+      el.style.filter = glass > 0.995 ? 'none' : `blur(${((1 - glass) * 6).toFixed(2)}px)`;
       el.style.visibility = v < 0.01 ? 'hidden' : 'visible';
       el.style.pointerEvents = v > 0.6 ? 'auto' : 'none';
+      if (v < 0.01) return;
+      // then the lines follow one by one, top-down on the way in, bottom-up on the way back
+      const kids = el.children;
+      const n = kids.length;
+      for (let i = 0; i < n; i++) {
+        const order = dir > 0 ? i : n - 1 - i;
+        const k = Math.min(1, Math.max(0, v * (1 + STAGGER * (n - 1)) - STAGGER * order));
+        const e = k * k * (3 - 2 * k);
+        const kid = kids[i] as HTMLElement;
+        kid.style.opacity = e.toFixed(3);
+        kid.style.transform = e > 0.999 ? 'none' : `translate3d(0, ${((1 - e) * 14 * dir).toFixed(2)}px, 0)`;
+      }
     },
     [center],
   );

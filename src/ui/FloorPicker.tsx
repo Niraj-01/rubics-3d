@@ -8,7 +8,7 @@ import { BackIcon, ChevronDown, ChevronUp, CloseIcon, LayersIcon } from './icons
 const MIN = towerFacts.eDeckLevel;
 const MAX = towerFacts.topLevel;
 
-/** "Choose your floor": pick a level, then fly up the facade to the view from outside it. */
+/** "Choose your floor": pick a level, fly up the facade and step inside to its view. */
 export default function FloorPicker() {
   const mode = useStore((s) => s.mode);
   const floor = useStore((s) => s.floor);
@@ -16,6 +16,7 @@ export default function FloorPicker() {
   const enterFloor = useStore((s) => s.enterFloor);
   const enterPool = useStore((s) => s.enterPool);
   const backToTower = useStore((s) => s.backToTower);
+  const flying = useStore((s) => s.flying);
   const [open, setOpen] = useState(false);
   // while flying between floors, the slider holds a draft until release
   const [draft, setDraft] = useState<number | null>(null);
@@ -76,8 +77,9 @@ export default function FloorPicker() {
         aria-hidden={!visible}
         className="glass-strong fixed inset-x-4 bottom-[calc(76px+env(safe-area-inset-bottom))] z-30 p-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:inset-x-auto sm:bottom-8 sm:right-8 sm:w-[360px] sm:p-6"
         style={{
-          opacity: visible ? 1 : 0,
-          transform: `translateY(${visible ? 0 : 14}px)`,
+          // steps back (but stays usable) while the camera is in flight
+          opacity: visible ? (flying ? 0.35 : 1) : 0,
+          transform: `translateY(${visible ? (flying ? 8 : 0) : 14}px)`,
           filter: visible ? 'none' : 'blur(6px)',
           pointerEvents: visible ? 'auto' : 'none',
         }}

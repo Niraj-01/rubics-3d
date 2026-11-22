@@ -89,6 +89,41 @@ function cabanaGeometry() {
   return mergeGeometries(parts);
 }
 
+/** Palm: a gently curved trunk and eight drooping, tapering fronds, merged with vertex colours. */
+function palmGeometry() {
+  const H = 6;
+  const lean = (y: number) => (y / H) ** 2 * 0.7;
+  const trunk = new THREE.CylinderGeometry(0.14, 0.24, H, 7, 6).translate(0, H / 2, 0);
+  const tp = trunk.attributes.position;
+  for (let i = 0; i < tp.count; i++) tp.setX(i, tp.getX(i) + lean(tp.getY(i)));
+  trunk.computeVertexNormals();
+  const parts: THREE.BufferGeometry[] = [colored(trunk, '#7a6248')];
+
+  const L = 3.4;
+  const leaf = new THREE.Color('#47703a');
+  const tip = new THREE.Color('#7f9a4a');
+  for (let k = 0; k < 8; k++) {
+    const frond = new THREE.PlaneGeometry(0.9, L, 1, 7).translate(0, L / 2, 0);
+    const fp = frond.attributes.position;
+    const cols = new Float32Array(fp.count * 3);
+    const c = new THREE.Color();
+    for (let i = 0; i < fp.count; i++) {
+      const t = fp.getY(i) / L;
+      const w = Math.sin(Math.PI * Math.min(1, t * 1.15 + 0.05)) * (1 - t * 0.55);
+      // rises from the crown, then droops under its own weight
+      fp.setXYZ(i, fp.getX(i) * w, 0.9 * t * L * 0.35 - 1.7 * t * t, t * L);
+      c.copy(leaf).lerp(tip, t);
+      cols.set([c.r, c.g, c.b], i * 3);
+    }
+    frond.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+    frond.rotateY((k / 8) * Math.PI * 2 + (k % 2) * 0.2);
+    frond.translate(lean(H), H, 0);
+    frond.computeVertexNormals();
+    parts.push(frond);
+  }
+  return mergeGeometries(parts);
+}
+
 const POOL_Y = DECK_Y + 0.32;
 
 export default function AmenityDeck() {
@@ -139,8 +174,8 @@ export default function AmenityDeck() {
       spots.length,
     );
     const trees = new THREE.InstancedMesh(
-      new THREE.IcosahedronGeometry(1, 1).translate(0, 1, 0),
-      new THREE.MeshStandardMaterial({ color: '#4d6b3c', roughness: 0.9, flatShading: true }),
+      palmGeometry(),
+      new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, side: THREE.DoubleSide }),
       spots.length,
     );
     let seed = 7;
@@ -148,8 +183,8 @@ export default function AmenityDeck() {
     spots.forEach(([x, z], i) => {
       m.compose(v.set(x, DECK_Y, z), q.identity(), s.set(1, 1, 1));
       planters.setMatrixAt(i, m);
-      const r = 1.1 + rand() * 0.6;
-      m.compose(v.set(x, DECK_Y + 0.7, z), q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rand() * 6), s.set(r, r * 1.35, r));
+      const r = 0.75 + rand() * 0.35;
+      m.compose(v.set(x, DECK_Y + 0.7, z), q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rand() * 6), s.set(r, r, r));
       trees.setMatrixAt(i, m);
     });
 
