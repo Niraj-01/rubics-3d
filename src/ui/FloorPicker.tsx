@@ -17,6 +17,7 @@ export default function FloorPicker() {
   const enterPool = useStore((s) => s.enterPool);
   const backToTower = useStore((s) => s.backToTower);
   const flying = useStore((s) => s.flying);
+  const inSections = useStore((s) => s.inSections);
   const [open, setOpen] = useState(false);
   // while flying between floors, the slider holds a draft until release
   const [draft, setDraft] = useState<number | null>(null);
@@ -62,7 +63,9 @@ export default function FloorPicker() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="btn btn-ghost glass fixed bottom-[max(16px,env(safe-area-inset-bottom))] right-4 z-30 !rounded-full !border-gold/30 transition-all duration-500 max-sm:h-[54px] max-sm:w-[68px] max-sm:flex-col max-sm:gap-1 max-sm:px-0 max-sm:text-[9px] max-sm:tracking-[0.18em] sm:bottom-8 sm:right-8"
+        className={`btn btn-ghost glass fixed bottom-[max(16px,env(safe-area-inset-bottom))] right-4 z-30 !rounded-full !border-gold/30 transition-all duration-500 max-sm:h-[54px] max-sm:w-[68px] max-sm:flex-col max-sm:gap-1 max-sm:px-0 max-sm:text-[9px] max-sm:tracking-[0.18em] sm:bottom-8 sm:right-8 ${
+          inSections ? 'max-md:!pointer-events-none max-md:!opacity-0' : ''
+        }`}
         style={{ opacity: visible || mode === 'pool' ? 0 : 1, pointerEvents: visible || mode === 'pool' ? 'none' : 'auto' }}
         aria-haspopup="dialog"
       >

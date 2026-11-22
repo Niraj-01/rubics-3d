@@ -23,7 +23,7 @@ function Fallback() {
   const fins = Array.from({ length: 9 }, (_, i) => 612 + i * 22);
   return (
     <div className="absolute inset-0 bg-[linear-gradient(180deg,#33497a_0%,#8a5a6a_45%,#e2ae92_78%,#6b5f58_100%)]">
-      <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMax slice" className="absolute inset-0 h-full w-full" aria-hidden>
+      <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMax meet" className="absolute inset-0 h-full w-full" aria-hidden>
         <defs>
           <linearGradient id="fb-gold" x1="0" x2="1">
             <stop offset="0" stopColor="#6b4a2c" />

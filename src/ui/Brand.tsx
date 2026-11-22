@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { beaumonte, brand, nav } from '@/content';
 import { getLenis, goToSection, useStore } from '@/store';
 import { useScrollStyle } from './useScrollStyle';
+import SoundToggle from './SoundToggle';
 import { CloseIcon, MenuIcon } from './icons';
 
 /** Small wordmark + tagline top-left, minimal nav, and the quiet opening title + scroll cue. */
@@ -44,6 +45,7 @@ export default function Brand() {
           </p>
         </button>
 
+        <div className="flex items-center gap-2 md:gap-4">
         <nav className="pointer-events-auto hidden items-center gap-1 md:flex" aria-label="Sections">
           {nav.map((n) => (
             <button
@@ -56,6 +58,7 @@ export default function Brand() {
             </button>
           ))}
         </nav>
+        <SoundToggle />
 
         <button
           type="button"
@@ -66,6 +69,7 @@ export default function Brand() {
         >
           {open ? <CloseIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
         </button>
+        </div>
       </header>
 
       {/* mobile menu sheet */}

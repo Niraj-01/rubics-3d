@@ -52,9 +52,10 @@ varying float vHeight;
 void main() {
   vec3 n = normalize(vWNormal);
   float tone = fract(vSeed * 13.7);
-  vec3 albedo = mix(vec3(0.50, 0.50, 0.49), vec3(0.70, 0.68, 0.64), tone);
-  if (fract(vSeed * 3.1) > 0.82) albedo = vec3(0.80, 0.78, 0.74);
-  if (fract(vSeed * 7.3) > 0.8) albedo = vec3(0.30, 0.35, 0.40); // glassy towers
+  // weathered Mumbai concrete: warm mid-tones, never bright white at noon
+  vec3 albedo = mix(vec3(0.40, 0.38, 0.35), vec3(0.58, 0.54, 0.48), tone);
+  if (fract(vSeed * 3.1) > 0.82) albedo = vec3(0.66, 0.62, 0.55);
+  if (fract(vSeed * 7.3) > 0.8) albedo = vec3(0.26, 0.30, 0.34); // glassy towers
   vec3 col;
   if (n.y > 0.5) {
     col = shade(albedo * 0.7, n);

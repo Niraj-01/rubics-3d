@@ -8,6 +8,7 @@ import { easing } from 'maath';
 import { useStore, type Mode } from '@/store';
 import { samplePath } from './cameraPath';
 import { W } from './weather';
+import { listener } from '@/ambience';
 import { DECK_Y, floorToY, POOL, TOWER, TOWER_WEST_X } from './towerSpec';
 
 const OPENING_CLOUD_Y = 115;
@@ -317,6 +318,7 @@ export default function CameraRig() {
       tmpDir.applyAxisAngle(tmpRight, s.pitch);
     }
     camera.lookAt(tmpLook.addVectors(camera.position, tmpDir));
+    listener.height = camera.position.y;
 
     // portrait screens need a wider vertical field of view to keep the tower in frame
     const aspect = size.width / size.height;

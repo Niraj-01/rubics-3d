@@ -1,6 +1,6 @@
 'use client';
 
-import type { ComponentType, ReactNode } from 'react';
+import { useEffect, type ComponentType, type ReactNode } from 'react';
 import { nearestStop, TIME_STOPS, type TimeName } from '@/scene/weatherPresets';
 import { useStore } from '@/store';
 import { FogIcon, MoonIcon, RainIcon, SunIcon, SunriseIcon, SunsetIcon } from './icons';
@@ -39,9 +39,19 @@ export default function WeatherControl() {
   const weather = useStore((s) => s.weather);
   const fog = useStore((s) => s.fog);
   const flying = useStore((s) => s.flying);
+  const inSections = useStore((s) => s.inSections);
   const setTime = useStore((s) => s.setTime);
   const setWeather = useStore((s) => s.setWeather);
   const setFog = useStore((s) => s.setFog);
+
+  // how bright the scene is behind the glass panels: sunrise .55, noon 1, sunset .55, night 0
+  useEffect(() => {
+    const seg = time * SCALE;
+    const levels = [0.55, 1, 0.55, 0];
+    const i = Math.min(SCALE - 1, Math.floor(seg));
+    const light = (levels[i] + (levels[i + 1] - levels[i]) * (seg - i)) * (weather === 'monsoon' ? 0.7 : 1);
+    document.documentElement.style.setProperty('--scene-light', light.toFixed(2));
+  }, [time, weather]);
 
   const stop = nearestStop(time);
   const Icon = ICONS[stop.id];
@@ -55,7 +65,10 @@ export default function WeatherControl() {
 
   return (
     <div
-      className="glass fixed bottom-[max(16px,env(safe-area-inset-bottom))] left-4 z-30 flex items-center gap-0 !rounded-full p-1 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:bottom-8 sm:left-8 sm:gap-0.5"
+      className={`glass fixed bottom-[max(16px,env(safe-area-inset-bottom))] left-4 z-30 flex items-center gap-0 !rounded-full p-1 transition-[opacity,transform] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:bottom-8 sm:left-8 sm:gap-0.5 ${
+        // on phones the content sections need the whole screen, buttons included
+        inSections ? 'max-md:!pointer-events-none max-md:translate-y-4 max-md:!opacity-0' : ''
+      }`}
       style={{ opacity: flying ? 0 : 1, transform: flying ? 'translateY(12px)' : 'none', pointerEvents: flying ? 'none' : 'auto' }}
       role="group"
       aria-label="Time of day and weather"

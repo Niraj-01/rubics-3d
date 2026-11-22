@@ -7,6 +7,7 @@ import { useStore } from '@/store';
 import { rangeVisibility, useScrollStyle } from './useScrollStyle';
 
 const STAGGER = 0.14;
+const lowTier = () => document.documentElement.dataset.tier === 'low';
 
 function Panel({ id, children }: { id: PanelId; children: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
@@ -19,7 +20,8 @@ function Panel({ id, children }: { id: PanelId; children: ReactNode }) {
       const glass = Math.min(1, v * 1.6);
       el.style.opacity = glass.toFixed(3);
       el.style.transform = `translate3d(0, ${((1 - glass) * 16 * dir).toFixed(2)}px, 0)`;
-      el.style.filter = glass > 0.995 ? 'none' : `blur(${((1 - glass) * 6).toFixed(2)}px)`;
+      // a blur filter on top of backdrop-filter is costly; phones fade with opacity alone
+      el.style.filter = glass > 0.995 || lowTier() ? 'none' : `blur(${((1 - glass) * 6).toFixed(2)}px)`;
       el.style.visibility = v < 0.01 ? 'hidden' : 'visible';
       el.style.pointerEvents = v > 0.6 ? 'auto' : 'none';
       if (v < 0.01) return;

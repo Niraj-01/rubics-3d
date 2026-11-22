@@ -21,7 +21,9 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   useEffect(() => {
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
-    const lenis = new Lenis({ autoRaf: true, lerp: 0.085, wheelMultiplier: 0.9, anchors: false });
+    // reduced motion: keep smooth scrolling (it drives the camera) but with far less glide
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const lenis = new Lenis({ autoRaf: true, lerp: calm ? 0.3 : 0.085, wheelMultiplier: 0.9, anchors: false });
     setLenis(lenis);
     lenis.on('scroll', (l: Lenis) => measure(l.scroll));
     const onResize = () => measure(lenis.scroll);

@@ -38,6 +38,18 @@ body {
   overflow-x: hidden;
 }
 
+/* Tailwind v4 resets buttons to the default cursor; everything tappable here should say so */
+button:not(:disabled),
+[role="button"],
+select,
+label[for] {
+  cursor: pointer;
+}
+/* our own pressed states replace the grey mobile tap flash */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
 h1,
 h2,
 h3 {
@@ -65,7 +77,9 @@ dd {
 
 @layer components {
 .glass {
-  background: rgba(18, 18, 20, 0.45);
+  /* --scene-light (0 night … 1 noon) is set from the time of day so text keeps its contrast */
+  background: rgba(18, 18, 20, calc(0.45 + 0.2 * var(--scene-light, 0.5)));
+  transition: background-color 1.2s ease;
   -webkit-backdrop-filter: blur(18px) saturate(140%);
   backdrop-filter: blur(18px) saturate(140%);
   border: 1px solid rgba(230, 211, 163, 0.18);
@@ -73,11 +87,24 @@ dd {
 }
 
 .glass-strong {
-  background: rgba(14, 14, 16, 0.62);
+  background: rgba(14, 14, 16, calc(0.62 + 0.14 * var(--scene-light, 0.5)));
+  transition: background-color 1.2s ease;
   -webkit-backdrop-filter: blur(22px) saturate(140%);
   backdrop-filter: blur(22px) saturate(140%);
   border: 1px solid rgba(230, 211, 163, 0.18);
   border-radius: 18px;
+}
+
+/* Low tier (phones, weak GPUs): a lighter blur over the live canvas, darker tint to compensate */
+:root[data-tier="low"] .glass {
+  background: rgba(16, 16, 18, calc(0.58 + 0.16 * var(--scene-light, 0.5)));
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: blur(8px) saturate(120%);
+}
+:root[data-tier="low"] .glass-strong {
+  background: rgba(14, 14, 16, calc(0.72 + 0.1 * var(--scene-light, 0.5)));
+  -webkit-backdrop-filter: blur(10px) saturate(120%);
+  backdrop-filter: blur(10px) saturate(120%);
 }
 
 .eyebrow {
@@ -177,6 +204,9 @@ dd {
 }
 .field::placeholder {
   color: rgba(154, 149, 140, 0.8);
+}
+.field:hover:not(:focus) {
+  border-color: rgba(230, 211, 163, 0.32);
 }
 .field:focus {
   outline: none;

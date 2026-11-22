@@ -1,8 +1,8 @@
 'use client';
 
 import { lazy, Suspense, useEffect, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { AdaptiveDpr, Environment, Lightformer, PerformanceMonitor, useProgress } from '@react-three/drei';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { Environment, Lightformer, PerformanceMonitor, useProgress } from '@react-three/drei';
 import * as THREE from 'three';
 import { useStore } from '@/store';
 import { applyFog, applyRain, applyTime, syncWeather, U, W } from './weather';
@@ -68,6 +68,23 @@ function WeatherDriver() {
   );
 }
 
+/**
+ * Dynamic resolution: when frame times climb, render fewer pixels (smoothly, in steps),
+ * and if the device keeps struggling drop to the low tier for good.
+ */
+function PerfGovernor({ maxDpr }: { maxDpr: number }) {
+  const setDpr = useThree((s) => s.setDpr);
+  const setTier = useStore((s) => s.setTier);
+  return (
+    <PerformanceMonitor
+      flipflops={3}
+      onChange={({ factor }) => setDpr(Math.round((1 + (maxDpr - 1) * factor) * 4) / 4)}
+      onFallback={() => setTier('low')}
+      onDecline={({ factor }) => factor < 0.3 && setTier('low')}
+    />
+  );
+}
+
 /** Reports load progress and flags the scene ready after a few rendered frames. */
 function ReadyReporter() {
   const { progress } = useProgress();
@@ -91,6 +108,9 @@ export default function Experience() {
   }, [setTier]);
 
   const high = tier === 'high';
+  useEffect(() => {
+    document.documentElement.dataset.tier = tier;
+  }, [tier]);
 
   return (
     <Canvas
@@ -99,8 +119,7 @@ export default function Experience() {
       camera={{ fov: 42, near: 1, far: 16000, position: [190, 196, 285] }}
       style={{ position: 'fixed', inset: 0, touchAction: 'none' }}
     >
-      <PerformanceMonitor onDecline={() => setTier('low')} flipflops={2} />
-      <AdaptiveDpr pixelated={false} />
+      <PerfGovernor maxDpr={high ? 1.5 : 1.25} />
       <WeatherDriver />
       <ReadyReporter />
       <Environment resolution={64} frames={1}>

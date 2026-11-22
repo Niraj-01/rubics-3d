@@ -58,7 +58,7 @@ const day: WeatherPreset = {
   sunIntensity: 3.0,
   sunDisk: 1,
   sunGlow: 0.6,
-  ambient: 0.95,
+  ambient: 0.8,
   envIntensity: 1,
   fogNear: 900,
   fogFar: 9500,

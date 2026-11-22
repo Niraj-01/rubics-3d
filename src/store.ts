@@ -10,6 +10,8 @@ export type Tier = 'high' | 'low';
 type State = {
   /** 0..1 across the camera journey (the tall scroll container). */
   progress: number;
+  /** Past the camera journey and into the content sections. */
+  inSections: boolean;
   /** Pixels scrolled past the end of the journey, for the ambient orbit. */
   afterJourney: number;
   mode: Mode;
@@ -47,6 +49,7 @@ export const getLenis = () => lenisRef;
 
 export const useStore = create<State>((set, get) => ({
   progress: 0,
+  inSections: false,
   afterJourney: 0,
   mode: 'scroll',
   time: 0,
@@ -58,7 +61,7 @@ export const useStore = create<State>((set, get) => ({
   loadProgress: 0,
   flying: false,
   sound: false,
-  setProgress: (progress, afterJourney) => set({ progress, afterJourney }),
+  setProgress: (progress, afterJourney) => set({ progress, afterJourney, inSections: afterJourney > 80 }),
   setTime: (time) => set({ time: Math.min(1, Math.max(0, time)) }),
   setWeather: (weather) => set({ weather }),
   setFog: (fog) => set({ fog }),

@@ -116,6 +116,9 @@ export default function Enquiry() {
                 enquiry.submit
               )}
             </button>
+            <p className="mt-3 text-[11px] leading-relaxed text-muted">
+              Demo build for review. Enquiries here aren&rsquo;t sent anywhere; nothing you type leaves this page.
+            </p>
           </div>
         </form>
       )}
