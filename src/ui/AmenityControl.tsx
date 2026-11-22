@@ -8,7 +8,7 @@ import { BackIcon } from './icons';
 /** Quiet cue that the view can be turned. */
 function LookHint() {
   return (
-    <p className="mt-2 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted">
+    <p className="mt-2 flex items-center justify-center gap-2 md:justify-start text-[10px] uppercase tracking-[0.2em] text-muted">
       <span className="h-px w-4 bg-gold/50" />
       <span className="[@media(pointer:coarse)]:hidden">Drag to look around</span>
       <span className="hidden [@media(pointer:coarse)]:inline">Swipe to look around</span>
@@ -37,11 +37,11 @@ export default function AmenityControl() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 top-[max(76px,calc(env(safe-area-inset-top)+64px))] z-30 flex justify-center px-4 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:top-24"
+      className="pointer-events-none fixed inset-x-0 top-[max(76px,calc(env(safe-area-inset-top)+64px))] z-30 flex justify-center px-4 md:justify-start md:pl-[6vw] transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] sm:top-24"
       style={{ opacity: show ? 1 : 0, transform: `translateY(${show ? 0 : -10}px)` }}
       aria-live="polite"
     >
-      <div className="glass pointer-events-auto max-w-xl px-5 py-4 text-center sm:px-7">
+      <div className={`glass max-w-xl px-5 py-4 text-center sm:px-7 md:max-w-md md:text-left ${show ? 'pointer-events-auto' : 'pointer-events-none'}`} aria-hidden={!show}>
         {mode === 'pool' ? (
           <>
             <p className="eyebrow">Level 6 amenity deck</p>
