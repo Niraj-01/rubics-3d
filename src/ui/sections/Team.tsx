@@ -19,20 +19,20 @@ export default function Team() {
         {legacy.team.map((m) => {
           const isOpen = open === m.name;
           return (
-            <article key={m.name} className="overflow-hidden rounded-[14px] border border-gold/15 bg-black/25 transition-colors duration-500 hover:border-gold/35">
-              <div className="relative aspect-[4/4.2] overflow-hidden">
+            <article key={m.name} className="group overflow-hidden rounded-[14px] border border-gold/15 bg-black/25 transition-colors duration-500 hover:border-gold/35">
+              {/* the portrait stays clear: no text or gradient over the face */}
+              <div className="relative aspect-square overflow-hidden bg-black/40 md:aspect-[4/5]">
                 <Image
                   src={m.photo}
-                  alt={m.name}
+                  alt={`${m.name}, ${m.role}`}
                   fill
-                  sizes="(max-width: 768px) 100vw, 300px"
-                  className="object-cover object-top grayscale-[35%] transition-all duration-700 hover:grayscale-0"
+                  sizes="(max-width: 768px) 100vw, 320px"
+                  className="object-cover object-[50%_18%] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.03]"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <h3 className="font-serif text-2xl text-cream">{m.name}</h3>
-                  <p className="mt-1 text-[11px] uppercase leading-snug tracking-[0.16em] text-gold-light">{m.role}</p>
-                </div>
+              </div>
+              <div className="border-t border-gold/15 px-4 pb-1 pt-4">
+                <h3 className="font-serif text-2xl leading-tight text-cream">{m.name}</h3>
+                <p className="mt-1.5 text-[11px] uppercase leading-snug tracking-[0.16em] text-gold-light">{m.role}</p>
               </div>
               <button
                 type="button"
